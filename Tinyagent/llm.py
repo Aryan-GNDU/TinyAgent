@@ -112,3 +112,29 @@ class LLM:
             metadata=metadata,
         )
 
+
+class EmbeddingModel:
+    """Generate embeddings."""
+
+    def __init__(
+        self,
+        model: str,
+        base_url: str = "http://localhost:11434/v1",
+    ):
+        """Initialize the embedding model with the given model."""
+        self.model = model
+        self.base_url = base_url
+
+    def embed(self, text: str) -> list[float]:
+        """Convert text into a numerical vector."""
+        # POST to the OpenAI-compatible /embeddings endpoint
+        request = urllib.request.Request(
+            f"{self.base_url}/embeddings",
+            data=json.dumps({"model": self.model, "input": text}).encode(),
+            headers={"Content-Type": "application/json"},
+        )
+        with urllib.request.urlopen(request) as resp:
+            response = json.loads(resp.read())
+
+        # Extract and return the embedding
+        return response["data"][0]["embedding"]
